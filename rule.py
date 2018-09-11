@@ -13,8 +13,8 @@ class Board:
         self.can_put = numpy.zeros(64,dtype=int) #0:置けない 1:置ける
         self.PL1_pass = 0
         self.PL2_pass = 0
-        self.board[27] = self.board[36] = 1 #1:黒
-        self.board[28] = self.board[35] = 2 #2:白
+        self.board[28] = self.board[35] = 1 #1:黒
+        self.board[27] = self.board[36] = 2 #2:白
         self.PL_turn = 1
         self.running = True
         self.com = x #0: PvP 1:CvP 2:PvC CUI起動とかUndoに必要
@@ -132,6 +132,8 @@ class Board:
             if len(numpy.where(non_zero == (x + y*8))[0]) == 0: #置けやん場所指定したやつ 入力しなおさねば
                 print("そこ置けやん")
                 return False
+            elif len(non_zero) == 0: #一個も取れない場合
+                self.Pass()
             else:
                 self.put_decision(x,y,stone,True)
                 self.kihu.append([stone,x,y,numpy.copy(self.board)])
@@ -173,8 +175,8 @@ class Board:
         """
         self.put_checker(stone)
         for non_zero in numpy.nonzero(self.can_put):
-#            if len(non_zero) == 0: #一個も取れない場合
-#                self.Pass(stone)
+            if len(non_zero) == 0: #一個も取れない場合
+                self.Pass(stone)
             if len(non_zero) != 0:
                 maxIndex = [i for i, x in enumerate(self.can_put) if x == max(self.can_put)]
                 random_pos = random.choice(maxIndex)
@@ -191,6 +193,8 @@ class Board:
                 self.game_end()
             elif len(non_zero) == 0: #一個も取れない場合
                 self.Pass()
+        if len(numpy.where(self.board == 0)) == 0:
+            self.game_end()
 
 
 

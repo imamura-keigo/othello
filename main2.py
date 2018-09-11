@@ -1,6 +1,6 @@
 #/usr/bin/python3
 from tkinter import *
-import tkinter.messagebox as tkmsg
+from tkinter import messagebox
 import rule
 import time
 import numpy
@@ -69,7 +69,7 @@ class Main:
 							elif self.COM == 0:
 								if self.othello.put_stone(x,y,self.othello.PL_turn):
 									self.operate_othello()
-									print(self.sub_win)
+									# print(self.sub_win)
 									if self.sub_win.winfo_exists():
 										self.sub_win_Update()
 
@@ -133,7 +133,15 @@ class Main:
 					if self.othello.board[(c-1)+(r-1)*8]==1:
 						self.screen.create_oval(x1,y1,x2,y2,fill = 'black', tag = "stone")
 					elif self.othello.board[(c-1)+(r-1)*8]==2:
-						self.screen.create_oval(x1,y1,x2,y2,fill = 'white', tag = "stone")
+						self.screen.create_oval(x1,y1,x2,y2,fill = 'white', tag = "stone")	
+		if((self.othello.PL1_pass | self.othello.PL2_pass) == 1):
+				self.Pass_message()
+				self.othello.put_checker(self.othello.PL_turn)
+				# 2連パス判定
+				for non_zero in numpy.nonzero(self.othello.can_put):
+					if len(non_zero) == 0: #一個も取れない場合
+						self.othello.Pass()
+						self.Pass_message()
 
 		self.screen.grid(column=0,row=0)
 		self.screen.update()
@@ -301,10 +309,19 @@ class Main:
 		self.screen.update()
 
 
-	def Pass_messege(self,PL):
+	def Pass_message(self):
 		''' Passメッセージ呼び出し
 		rule.py Pass()内から呼び出し '''
-		self.tkmsg.showinfo('パス',PL + 'パスです')
+		print(self.othello.PL1_pass)
+		print(self.othello.PL2_pass)
+		if(self.othello.PL1_pass == self.othello.PL2_pass):
+			messagebox.showinfo('ゲーム終了','ゲーム終了！')
+		elif(self.othello.PL1_pass == 1):
+			messagebox.showinfo('パス','先手側パス')
+		else:
+			messagebox.showinfo('パス','後手側パス')
+    			
+
 
 	def show_result(self):
 		''' 
