@@ -241,9 +241,7 @@ def runGame():
 
 
 def Pass(PL,end_flag):
-    	global othello
-	''' Passメッセージ呼び出し
-	rule.py Pass()内から呼び出し '''
+	global othello
 	if end_flag:
 		tkmsg.showinfo("ゲーム終了")
 	else:
