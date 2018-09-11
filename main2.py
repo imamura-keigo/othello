@@ -149,6 +149,7 @@ def choose():
 			othello.board = othello.kihu[-1][3]	#クソざこarray型になっとる
 	except IndexError:
 		value = None
+	self.finish = False
 	sub_win_Update()
 	screen.delete("stone")
 	show_othello_board()
@@ -233,6 +234,8 @@ def runGame():
 
 
 def Pass(PL):
+	''' Passメッセージ呼び出し
+	rule.py Pass()内から呼び出し '''
 	tkmsg.showinfo('パス',PL + 'パスです')
 
 def show_result():

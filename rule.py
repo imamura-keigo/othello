@@ -74,8 +74,8 @@ class Board:
             # print("pass_PL1")
             self.PL1_pass = 1
         elif self.PL_turn == 2:
-            print("pass_PL2")
-            # Pass("後手側")
+            # print("pass_PL2")
+            Pass("後手側")
             self.PL2_pass = 1
 
         if self.PL1_pass == 1 and self.PL2_pass == 1:
