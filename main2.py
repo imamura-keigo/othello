@@ -3,12 +3,14 @@ from tkinter import *
 import tkinter.messagebox as tkmsg
 import rule 
 import time
+import numpy
 
 #running = False
 sub_win = None
 res_win = None
 pass_win = None
 COM = -1
+once = 0
 
 def clickHandle(event):
 	global COM #PL has option 0 : Human Player 1 : Computer
@@ -48,8 +50,10 @@ def clickHandle(event):
 							if othello.put_stone(x,y,othello.PL_turn):
 								operate_othello()
 								sub_win_Update()
-		if othello.finish:
-    			show_result()
+
+		if othello.finish or len(numpy.where(othello.board == 0)) ==0:
+				othello.game_end()
+				show_result()
 
 	else:
 		if 300<= yMouse <=350:
@@ -236,10 +240,14 @@ def runGame():
 	screen.update()
 
 
-def Pass(PL):
+def Pass(PL,end_flag):
+    	global othello
 	''' Passメッセージ呼び出し
 	rule.py Pass()内から呼び出し '''
-	tkmsg.showinfo('パス',PL + 'パスです')
+	if end_flag:
+		tkmsg.showinfo("ゲーム終了")
+	else:
+		tkmsg.showinfo('パス',PL + 'パスです')
 
 def show_result():
 	global res_win,othello
