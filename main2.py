@@ -21,7 +21,7 @@ class Main:
 		self.restart_bot = Button(self.bottom,text ="Restart(r)",command = self.runGame)
 		self.quit_bot = Button(self.bottom,text ="Quit(q)",command = self.root.destroy)
 		self.screen = Canvas(self.root, width=500, height=500, background="#222",highlightthickness=0)
-		self.score = Canvas(self.root, width=200, height=500, background="#222",highlightthickness=0)
+		self.score = Canvas(self.root, width=200, height=500, background="ivory3",highlightthickness=0)
 
 		self.root.wm_title("Othello")
 		self.screen.grid(column=0,row=0)
@@ -115,13 +115,13 @@ class Main:
 				y2 = y1 + (row_height)
 
 				if (c == 0 or r == 0):
-						self.screen.create_rectangle(x1,y1,x2,y2,fill = '#222')
+						self.screen.create_rectangle(x1,y1,x2,y2,fill = 'ivory3')
 						if not c == r: 
 							if c == 0:
-								self.screen.create_text(x1+25,y1+25,anchor="c",text=str(r),font=("Consolas", 15),fill="yellow",tag = "board")
+								self.screen.create_text(x1+25,y1+25,anchor="c",text=str(r),font=("Consolas", 15),fill="green",tag = "board")
 							else:
 								column = "abcdefgh" [int(c)-1]
-								self.screen.create_text(x1+25,y1+25,anchor="c",text=str(column),font=("Consolas", 15),fill="yellow",tag = "board")
+								self.screen.create_text(x1+25,y1+25,anchor="c",text=str(column),font=("Consolas", 15),fill="green",tag = "board")
 				else:
 						self.screen.create_rectangle(x1,y1,x2,y2,fill = 'green')
 						if self.othello.can_put[(c-1)+(r-1)*8] > 0:
@@ -134,7 +134,7 @@ class Main:
 						self.screen.create_oval(x1,y1,x2,y2,fill = 'black', tag = "stone")
 					elif self.othello.board[(c-1)+(r-1)*8]==2:
 						self.screen.create_oval(x1,y1,x2,y2,fill = 'white', tag = "stone")	
-		if((self.othello.PL1_pass | self.othello.PL2_pass) == 1):
+		if((self.othello.PL1_pass == 1 and 3 - self.othello.PL_turn == 1) or (self.othello.PL2_pass == 1 and 3 - self.othello.PL_turn == 2)):
 				self.Pass_message()
 				self.othello.put_checker(self.othello.PL_turn)
 				# 2連パス判定
@@ -148,6 +148,9 @@ class Main:
 		self.score_show()
 	
 	def score_show(self):
+		''' 
+		現在の得点計算,score表示
+ 		'''
 		self.othello.black_sum = 0
 		self.othello.white_sum = 0
 		for c in range(len(self.othello.board)):
@@ -155,9 +158,14 @@ class Main:
 					self.othello.black_sum = self.othello.black_sum + 1
 				elif self.othello.board[c] == 2:
 					self.othello.white_sum = self.othello.white_sum + 1
+		
 		self.score.delete("sum")
-		self.score.create_text(70,150,anchor="c",text="Player1\n ● :" + str(self.othello.black_sum),font=("Consolas", 20),fill="#000",tag = "sum")
-		self.score.create_text(70,350,anchor="c",text="Player2\n ○ :" + str(self.othello.white_sum),font=("Consolas", 20),fill="#000",tag = "sum")
+		self.score.create_text(70,150,anchor="c",text=self.othello.sente[self.COM],font=("Consolas", 20),fill="#000",tag = "sum")
+		self.score.create_text(40,200,anchor="c",text="●",font=("Consolas", 40),fill="#000",tag = "sum")
+		self.score.create_text(70,202,anchor="c",text= " :" + str(self.othello.black_sum),font=("Consolas", 20),fill="#000",tag = "sum")
+		self.score.create_text(70,350,anchor="c",text=self.othello.gote[self.COM],font=("Consolas", 20),fill="#000",tag = "sum")
+		self.score.create_text(40,400,anchor="c",text="○",font=("Consolas", 40),fill="#000",tag = "sum")
+		self.score.create_text(70,402,anchor="c",text= " :" + str(self.othello.white_sum),font=("Consolas", 20),fill="#000",tag = "sum")
 
 		
 
@@ -174,7 +182,7 @@ class Main:
 				if c == 0 or r == 0:
 					xpos = x1+column_width
 					ypos = y1+row_height + row_height/2
-					self.screen.create_rectangle(x1,y1,x2,y2,fill = '#222')
+					self.screen.create_rectangle(x1,y1,x2,y2,fill = 'ivory3')
 				else:
 					self.screen.create_rectangle(x1,y1,x2,y2,fill = 'green')
         
@@ -312,8 +320,6 @@ class Main:
 	def Pass_message(self):
 		''' Passメッセージ呼び出し
 		rule.py Pass()内から呼び出し '''
-		print(self.othello.PL1_pass)
-		print(self.othello.PL2_pass)
 		if(self.othello.PL1_pass == self.othello.PL2_pass):
 			messagebox.showinfo('ゲーム終了','ゲーム終了！')
 		elif(self.othello.PL1_pass == 1):
@@ -328,11 +334,18 @@ class Main:
 		結果表示画面
 		'''
 		if self.res_win is None or not self.res_win.winfo_exists():
+			if (self.othello.black_sum > self.othello.white_sum):
+				show_win = self.othello.sente[self.COM] + " Win "
+			elif (self.othello.white_sum > self.othello.black_sum):
+				show_win = self.othello.gote[self.COM] + " Win "
+			else:
+				self.show_win = "draw"
+			
 			self.res_win = Toplevel()
 			self.res_win.title("対戦結果")
 			self.res_win.geometry("400x300")
 
-			self.win_player = Label(self.res_win, text=self.othello.show_win, font=('Helvetica', '24', 'bold'))
+			self.win_player = Label(self.res_win, text=show_win, font=('Helvetica', '24', 'bold'))
 			self.win_player.pack(pady = 20,anchor = N)
 
 			self.display_score = Label(self.res_win, text=self.othello.res_score, font=('Helvetica', '18', 'bold'))

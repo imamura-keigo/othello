@@ -20,11 +20,12 @@ class Board:
         self.com = x #0: PvP 1:CvP 2:PvC CUI起動とかUndoに必要
         self.kihu = []
         self.finish = False
-        # 追加分　終了判定用
+        # 特定計算、勝利判定用
         self.black_sum = 0
         self.white_sum = 0
+        self.sente = ["Player1" , "COM", "Player1"]
+        self.gote = ["Player2" , "Player1", "COM"]
         self.res_score = ""
-        self.show_win = ""
 
     def game_end(self):
         """ ゲーム終了なんよなぁ """ #片方が盤面に打てなくなると終了してしまうので何とかしようね
@@ -43,25 +44,8 @@ class Board:
 
         # スコア計算、勝敗判定
         self.res_score = '●' + str(self.black_sum) + ' - ' + str(self.white_sum) + '○'
-
-        if self.show_win == '':
-            if (self.black_sum > self.white_sum):
-                if self.com == 1:
-                    self.show_win = 'COM Win'
-                else:
-                    self.show_win = "Player1 Win"
-            elif (self.white_sum > self.black_sum):
-                if self.com == 0:
-                    self.show_win = "Player2 Win"
-                elif self.com == 2:
-                    self.show_win = "Player1 Win"
-                else:
-                    self.show_win = "COM Win"
-            else:
-                self.show_win = "draw"
-
-            ''' from main2 import show_result
-            show_result(self.show_win,self.res_score) '''
+        ''' from main2 import show_result
+        show_result(self.show_win,self.res_score) '''
 
          
     def Pass(self):
