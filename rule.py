@@ -53,7 +53,7 @@ class Board:
             elif (self.white_sum > self.black_sum):
                 if self.com == 0:
                     self.show_win = "Player2 Win"
-                elif self.com == 1:
+                elif self.com == 2:
                     self.show_win = "Player1 Win"
                 else:
                     self.show_win = "COM Win"
@@ -68,15 +68,14 @@ class Board:
         """ 
         パスなんだよなぁ...　
         """
-        from main2 import Pass
         if self.PL_turn == 1:
+            # Main.Pass("先手側",(self.PL1_pass == 1 and self.PL2_pass))
+            print("pass_PL1")
             self.PL1_pass = 1
-            Pass("先手側", (self.PL1_pass == self.PL2_pass))
-            # print("pass_PL1")
         elif self.PL_turn == 2:
-            self.PL2_pass = 1
             # print("pass_PL2")
-            Pass("後手側",(self.PL1_pass == self.PL2_pass))
+            Main.Pass("後手側"(self.PL1_pass == 1 and self.PL2_pass))
+            self.PL2_pass = 1
 
         if self.PL1_pass == 1 and self.PL2_pass == 1:
             print("game_end")
@@ -187,9 +186,8 @@ class Board:
         #次の手番で打てるか判定
         self.put_checker(self.PL_turn) 
         for non_zero in numpy.nonzero(self.can_put): 
-            if len(numpy.where(self.board == 0)) ==0:
-            # if (self.board.min()) != 0: #盤面埋まり申した
-                print("盤面埋まり_COM")
+            if (self.board.min()) != 0: #盤面埋まり申した
+                # print("盤面埋まり_COM")
                 self.game_end()
             elif len(non_zero) == 0: #一個も取れない場合
                 self.Pass()
