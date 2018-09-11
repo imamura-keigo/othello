@@ -17,13 +17,11 @@ class Main:
 		self.root.resizable(0,0)
 		self.bottom = Frame(self.root)
         
-		self.kihu_bot = Button(self.bottom,text ="棋譜(w)")
-		self.undo_bot = Button(self.bottom,text ="Undo(u)")
-		self.restart_bot = Button(self.bottom,text ="Restart(r)")
-		self.quit_bot = Button(self.bottom,text ="Quit(q)")
-	
+		self.kihu_bot = Button(self.bottom,text ="棋譜(w)",command = self.create_new_screen)
+		self.restart_bot = Button(self.bottom,text ="Restart(r)",command = self.runGame)
+		self.quit_bot = Button(self.bottom,text ="Quit(q)",command = self.root.destroy)
 		self.screen = Canvas(self.root, width=500, height=500, background="#222",highlightthickness=0)
-		self.score = Canvas(self.root, width=200, height=500, background="#220",highlightthickness=0)
+		self.score = Canvas(self.root, width=200, height=500, background="#222",highlightthickness=0)
 
 		self.root.wm_title("Othello")
 		self.screen.grid(column=0,row=0)
@@ -60,17 +58,21 @@ class Main:
 								if self.COM != self.othello.PL_turn:
 									self.othello.put_stone(x,y,self.othello.PL_turn)
 									self.operate_othello()
-									self.sub_win_Update()	
+									if self.sub_win.winfo_exists():
+										self.sub_win_Update()	
 								while self.COM == self.othello.PL_turn:
 									self.othello.com_search(self.othello.PL_turn)
 									self.operate_othello()
-									self.sub_win_Update()
-								self.sub_win_Update()	
-                    
+									if self.sub_win.winfo_exists():
+										self.sub_win_Update()
+	                
 							elif self.COM == 0:
 								if self.othello.put_stone(x,y,self.othello.PL_turn):
 									self.operate_othello()
-									self.sub_win_Update()	
+									print(self.sub_win)
+									if self.sub_win.winfo_exists():
+										self.sub_win_Update()
+
 			if self.othello.finish or len(numpy.where(self.othello.board == 0)) == 0:
 					self.othello.game_end()
 					self.show_result()
@@ -123,12 +125,28 @@ class Main:
 								self.screen.create_rectangle(x1,y1,x2,y2,fill = 'red')
 				if c != 0 and r !=0:    
 					if self.othello.board[(c-1)+(r-1)*8]==1:
-						self.screen.create_oval(x1,y1,x2,y2,fill = 'black')
+						self.screen.create_oval(x1,y1,x2,y2,fill = 'black', tag = "stone")
 					elif self.othello.board[(c-1)+(r-1)*8]==2:
-						self.screen.create_oval(x1,y1,x2,y2,fill = 'white')
+						self.screen.create_oval(x1,y1,x2,y2,fill = 'white', tag = "stone")
 
 		self.screen.grid(column=0,row=0)
 		self.screen.update()
+
+		self.score_show()
+	
+	def score_show(self):
+		self.othello.black_sum = 0
+		self.othello.white_sum = 0
+		for c in range(len(self.othello.board)):
+				if self.othello.board[c] == 1:
+					self.othello.black_sum = self.othello.black_sum + 1
+				elif self.othello.board[c] == 2:
+					self.othello.white_sum = self.othello.white_sum + 1
+		self.score.delete("sum")
+		self.score.create_text(70,150,anchor="c",text="Player1\n ● :" + str(self.othello.black_sum),font=("Consolas", 20),fill="#000",tag = "sum")
+		self.score.create_text(70,350,anchor="c",text="Player2\n ○ :" + str(self.othello.white_sum),font=("Consolas", 20),fill="#000",tag = "sum")
+
+		
 
 	def show_othello_board(self):
 		BOARD_SIZE = 8 + 1
@@ -256,13 +274,11 @@ class Main:
 			self.root.destroy()
 		elif symbol.lower()=="w" and self.running:
 			self.create_new_screen()
-		elif symbol.lower()=="u" and self.running:
-				print("undo")
-				self.othello.Undo()
+		
         
 	def runGame(self):
 		self.running = False
-        
+		self.sub_win = None
 		self.screen.create_text(250,203,anchor="c",text="オセロにしたい\nしたくない？",font=("Consolas", 50),fill="#fff")
 		for i in range(3):
 			self.screen.create_rectangle(25+155*i, 310, 155+155*i, 355, fill="#000", outline="#000")
@@ -301,7 +317,8 @@ class Main:
 		self.screen.delete(ALL)
 
 		self.othello = rule.Board(self.COM)
-
+		if not self.sub_win is None:
+			self.sub_win.destroy()
 		self.create_new_screen() #棋譜用サブ画面表示 
 
 
