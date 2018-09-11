@@ -1,10 +1,6 @@
 import numpy
 import sys
 import random
-import csv
-
-global file
-
 
 
 class Board:    
@@ -21,37 +17,69 @@ class Board:
         self.board[28] = self.board[35] = 2 #2:白
         self.PL_turn = 1
         self.running = True
-        self.x_before = 0
-        self.y_before = 0
-        self.com = x #0: PvP 1:CvP 2:PvC
+        self.com = x #0: PvP 1:CvP 2:PvC CUI起動とかUndoに必要
         self.kihu = []
-        self.csv_data = []
-
+        self.finish = False
+        # 追加分　終了判定用
+        self.black_sum = 0
+        self.white_sum = 0
+        self.res_score = ""
+        self.show_win = ""
 
     def game_end(self):
-        """ ゲーム終了なんよなぁ """
-        self.running = False
-        print(self.board.argmin())
-        print(self.board)
-        print("finish")
+        """ ゲーム終了なんよなぁ """ #片方が盤面に打てなくなると終了してしまうので何とかしようね
+        # self.running = False
+        # print(self.board.argmin())
+        # print(self.board)
+        self.finish = True
+        self.black_sum = 0
+        self.white_sum = 0
+        ''' 石集計 '''
+        for c in range(len(self.board)):
+                if self.board[c] == 1:
+                    self.black_sum = self.black_sum + 1
+                elif self.board[c] == 2:
+                    self.white_sum = self.white_sum + 1
 
+        # スコア計算、勝敗判定
+        self.res_score = '●' + str(self.black_sum) + ' - ' + str(self.white_sum) + '○'
+
+        if self.show_win == '':
+            if (self.black_sum > self.white_sum):
+                if self.com == 2:
+                    self.show_win = 'COM Win'
+                else:
+                    self.show_win = "Player1 Win"
+            elif (self.white_sum > self.black_sum):
+                if self.com == 0:
+                    self.show_win = "Player2 Win"
+                elif self.com == 2:
+                    self.show_win = "Player1 Win"
+                else:
+                    self.show_win = "COM Win"
+            else:
+                self.show_win = "draw"
+
+            ''' from main2 import show_result
+            show_result(self.show_win,self.res_score) '''
+
+         
     def Pass(self):
         """ 
         パスなんだよなぁ...　
         """
-        #print("ぱぁすPL_turn", self.PL_turn)
-
-        self.show_record()
-
+        from main2 import Pass
         if self.PL_turn == 1:
+            Pass("先手側",(self.PL1_pass == 1 and self.PL2_pass))
+            # print("pass_PL1")
             self.PL1_pass = 1
-            print("Pass1")
         elif self.PL_turn == 2:
+            # print("pass_PL2")
+            Pass("後手側"(self.PL1_pass == 1 and self.PL2_pass))
             self.PL2_pass = 1
-            print("Pass2")
 
         if self.PL1_pass == 1 and self.PL2_pass == 1:
-            print("pass")
+            print("game_end")
             self.game_end()
 
         self.PL_turn = 3 - self.PL_turn
@@ -97,7 +125,7 @@ class Board:
     def put_stone(self,x,y,stone): #石を置く
         """ 
         石を置くついでにパスの判定
-        """
+         """
         self.put_checker(stone)
         for non_zero in numpy.nonzero(self.can_put): 
 #            elif numpy.argmin(self.board) != 0: #盤面埋まり申した
@@ -108,20 +136,18 @@ class Board:
             else:
                 self.put_decision(x,y,stone,True)
                 self.kihu.append([stone,x,y,numpy.copy(self.board)])
-                self.show_record()
-        #print("PL_turn_put_stone", self.PL_turn)
+        
         #次の手番で打てるか判定
-        self.put_checker(stone)
+        self.put_checker(self.PL_turn)
         for non_zero in numpy.nonzero(self.can_put): 
             if self.board.min() != 0: #盤面埋まり申した
-                print("盤面埋まり_COM")
+                #print("盤面埋まり_COM")
                 self.game_end()
             elif len(non_zero) == 0: #一個も取れない場合
-                self.kihu.append([stone,-1,-1,numpy.copy(self.board)])
-                print("put_stone_pass")
                 self.Pass()
+
         return True
-        
+
     def printer(self): #CUI盤面表示
         """ 
         CUIの盤面表示
@@ -135,7 +161,7 @@ class Board:
             print(j,' '.join('.BW'[j] for j in self.board[i*8:][:8]))
             j = j + 1
         print("y")
-        print(self.kihu)
+#        print(self.kihu)
         print()
 #        for i in range(8):
 #            for j in self.can_put[i*8:][:8]:
@@ -146,119 +172,48 @@ class Board:
         """ 
         AI様。一番多くとれる場所にランダムに置くだけ。うんち
         """
-        global GUI 
         self.put_checker(stone)
         for non_zero in numpy.nonzero(self.can_put):
-            if len(non_zero) == 0: #一個も取れない場合
-                return False
+#            if len(non_zero) == 0: #一個も取れない場合
+#                self.Pass(stone)
             if len(non_zero) != 0:
                 maxIndex = [i for i, x in enumerate(self.can_put) if x == max(self.can_put)]
                 random_pos = random.choice(maxIndex)
                 x = random_pos%8
                 y = random_pos//8
-                self.x_before = x
-                self.y_before = y
                 self.put_decision(x,y,stone,True)
                 self.kihu.append([stone,x,y,numpy.copy(self.board)])
-                self.show_record()
-        #print("PL__turn_com_search", self.PL_turn)
+        
         #次の手番で打てるか判定
         self.put_checker(self.PL_turn) 
         for non_zero in numpy.nonzero(self.can_put): 
             if (self.board.min()) != 0: #盤面埋まり申した
-                print("盤面埋まり_COM")
+                # print("盤面埋まり_COM")
                 self.game_end()
             elif len(non_zero) == 0: #一個も取れない場合
-                self.kihu.append([stone,-1,-1,numpy.copy(self.board)])
-                print("com_search_pass")
-                print("non_zero",non_zero)
                 self.Pass()
 
-        return True
 
-    #---------今度こそ棋譜表示させたいンゴォｗｗｗｗ------------
-    def show_record(self):
-        global file
-        ishi = str('')
-        x = str('')
-        p = ''
-        
-        k = self.kihu[-1] #棋譜の最新情報(リストの一番後ろ)
-        i = 0
-        self.csv_data = []
-        if len(self.kihu)!=0: 
-            if k[0] == 1:
-                ishi = '●'
-            elif k[0] == 2:
-                ishi = '○'
+
+
+    def Undo(self):
+        if len(self.kihu) == 1 or len(self.kihu) == 0:
+            self.board = numpy.zeros(64,dtype=int) #0:空白
+            self.cp_board = numpy.zeros(64,dtype=int)
+            self.board[27] = self.board[36] = 1 #1:黒
+            self.board[28] = self.board[35] = 2 #2:白
+            self.PL_turn = 1
+        elif len(self.kihu) != 0:
+            pop = self.kihu.pop()
+            last = self.kihu[-2]
+            PL_turn = last[0]
+            #print("pop  ", pop)
+            #print("pop  ", pop[0])
+            if self.com == pop[0]:
+                self.Undo()
             else:
-                print("石がおかしい")
+                self.board = last[3]
 
-            if k[1] == -1:
-                x = "Pass"
-                print (str(len(self.kihu))+ ishi + " :  "+str(x))
-            else:
-                x = "abcdefgh" [k[1]] + str(k[2]+1)
-                print (str(len(self.kihu)) + ishi + " :  "+str(x))
-            
-        for k in self.kihu:
-            if self.com == 0:
-                if k[0] == 1:
-                    p = "Player1"
-                elif k[0] == 2:
-                    p = "Player2"
-                else:
-                    print("error_show_record")
-                
-            elif self.com == 1:
-                if k[0] == 1:
-                    p = "COM"
-                elif k[0] == 2:
-                    p = "Player1"
-            
-            elif self.com == 2:
-                if k[0] == 1:
-                    p = "Player1"
-                elif k[1] == 2:
-                    p = "COM"
-
-            else:
-                print("error_show_record2")
-            
-            if k[1] == -1:
-                x = "Pass"
-                # print (str(i+1)+ ishi + " :  "+str(x))
-            else:
-                x = "abcdefgh" [k[1]] + str(k[2]+1)
-                # print (str(i+1) + ishi + " :  "+str(x))
-            self.csv_data.append([i+1,p,x,numpy.copy(k[3])])
-            i = i + 1
-
-
-        with open('data.csv', 'w') as file:
-            writer = csv.writer(file, lineterminator='\n')
-            writer.writerows(self.csv_data)
-    #-----------------------------------------------------
-
-    def Undo(self,com_player):
-        i = 1
-        if not len(self.kihu) == 0:
-            while True:
-                if com_player == 0:
-                    if len(self.kihu[0-i]) == 4:
-                        for nyaan in range(i):
-                            self.kihu.pop()
-                        break
-                    else:
-                        i = i + 1 
-                else:
-                    if len(self.kihu[0-i]) == 4 and com_player != self.PL_turn:
-                        for nyaan in range(i-1):
-                            self.kihu.pop()
-                        break
-                    else:
-                        i = i + 1 
-                    
     def play_game_CUI(self):
         """ CUI上の入力 """
         self.printer()
@@ -272,6 +227,8 @@ class Board:
 
             print("x >> ", end ="")
             x = int(input())
+            if x == 10:
+                self.Undo()
             print("y >> ", end ="")
             y = int(input())
             self.put_stone(x,y,self.PL_turn) 
@@ -284,8 +241,6 @@ class Board:
 
 
 if __name__ == '__main__':
-    board = Board(1)
-    with open('data.csv', 'w') as file:
-            writer = csv.writer(file, lineterminator='\n')
-            writer.writerows("手数 " + "ターンプレイヤー "+"1行目" )
+    board = Board(1) #0: PVP 1: CvP 2:PvC
     board.play_game_CUI()
+
