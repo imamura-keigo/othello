@@ -74,7 +74,7 @@ class Board:
             self.PL1_pass = 1
         elif self.PL_turn == 2:
             # print("pass_PL2")
-            Main.Pass("後手側"(self.PL1_pass == 1 and self.PL2_pass))
+            # Main.Pass("後手側"(self.PL1_pass == 1 and self.PL2_pass))
             self.PL2_pass = 1
 
         if self.PL1_pass == 1 and self.PL2_pass == 1:

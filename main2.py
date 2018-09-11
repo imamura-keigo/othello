@@ -116,6 +116,12 @@ class Main:
 
 				if (c == 0 or r == 0):
 						self.screen.create_rectangle(x1,y1,x2,y2,fill = '#222')
+						if not c == r: 
+							if c == 0:
+								self.screen.create_text(x1+25,y1+25,anchor="c",text=str(r),font=("Consolas", 15),fill="yellow",tag = "board")
+							else:
+								column = "abcdefgh" [int(c)-1]
+								self.screen.create_text(x1+25,y1+25,anchor="c",text=str(column),font=("Consolas", 15),fill="yellow",tag = "board")
 				else:
 						self.screen.create_rectangle(x1,y1,x2,y2,fill = 'green')
 						if self.othello.can_put[(c-1)+(r-1)*8] > 0:
@@ -131,7 +137,6 @@ class Main:
 
 		self.screen.grid(column=0,row=0)
 		self.screen.update()
-
 		self.score_show()
 	
 	def score_show(self):
@@ -191,10 +196,16 @@ class Main:
 				self.othello.board = self.othello.kihu[-1][3]	
 		except IndexError:
 			value = None
+
 		self.sub_win_Update()
 		self.screen.delete("stone")
 		self.show_othello_board()
+		if self.othello.PL_turn == self.othello.com:
+			self.othello.com_search(self.othello.PL_turn)
 		self.operate_othello()
+
+		if self.sub_win.winfo_exists():
+			self.sub_win_Update()
 
 
 	def sub_win_Update(self):
@@ -309,6 +320,8 @@ class Main:
 
 			self.display_score = Label(self.res_win, text=self.othello.res_score, font=('Helvetica', '18', 'bold'))
 			self.display_score.pack(pady = 20)
+		
+		self.othello.finish = False
 
 
 	def playGame(self):
