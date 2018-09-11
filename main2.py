@@ -222,9 +222,10 @@ def keyHandle(event):
     		othello.Undo()
 	
 def runGame():
-	global running
+	global running,score
 	running = False
 	
+	# score.forget()
 	screen.create_text(250,203,anchor="c",text="オセロにしたい\nしたくない？",font=("Consolas", 50),fill="#fff")
 	for i in range(3):
 		screen.create_rectangle(25+155*i, 310, 155+155*i, 355, fill="#000", outline="#000")
@@ -263,13 +264,14 @@ def show_result():
 
 
 def playGame():
-	global board, running
+	global board, running,score
 	global othello
 	global PL2
 	global COM
 	running = True
 	screen.delete(ALL)
 
+	# score.add()
 	othello = rule.Board(COM)
 
 	create_new_screen() #棋譜用サブ画面表示 
@@ -291,7 +293,6 @@ if __name__ == '__main__':
 #親画面の初期化処理
 	root = Tk()
 	root.resizable(1,0)
-	Fboard = Frame(root)
 	bottom = Frame(Fboard)
 	kihu_bot = Button(bottom,text ="棋譜(w)")
 	undo_bot = Button(bottom,text ="Undo(u)")
@@ -299,10 +300,10 @@ if __name__ == '__main__':
 	quit_bot = Button(bottom,text ="Quit(q)")
 	
 	screen = Canvas(Fboard, width=500, height=500, background="#222",highlightthickness=0)
-#	score = Canvas(Fboard, width=500, height=500, background="#222",highlightthickness=0)
-	Fboard.pack()
-	screen.pack(anchor = W)
-#	score.pack(anchor = E)
+	score = Canvas(root, width=200, height=500, background="#222",highlightthickness=0)
+	Fboard.grid(column = 0, row = 0)
+	screen.pack()
+	score.grid(column = 1, row = 0)
 	bottom.pack()
 	root.wm_title("Othello")
 #ゲームの起動
@@ -316,7 +317,7 @@ if __name__ == '__main__':
 """ 
 root ---*--- Fboard ---*--- screen
         |				|
-		|               *--- bottom
+		*---score       *--- bottom
         |               |
         |               *---score
         |
