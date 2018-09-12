@@ -1,10 +1,2 @@
 ターン数,プレイヤー,手
-1,Player1,f5
-2,Player2,d6
-3,Player1,c5
-4,Player2,f4
-5,Player1,e7
-6,Player2,f6
-7,Player1,g5
-8,Player2,e6
-9,Player1,e3
+1,COM,e6

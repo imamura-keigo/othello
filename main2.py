@@ -209,33 +209,30 @@ class Main:
 		self.score.update()
 
 	def choose(self):
-    	# UndoしたときのPassフラグの管理がいる
-		# res_winが開いていた時強制終了がいるかも
-		try:
-			if self.listbox.curselection()[0] == 0:
-				self.othello = rule.Board(self.COM)
-				print("pass")
-			elif "pass" !=  self.othello.kihu[self.listbox.curselection()[0]][1]:
-				for i in range(len(self.othello.kihu) - self.listbox.curselection()[0]):
-					self.othello.PL_turn = int(self.othello.kihu.pop()[0])
-					if self.othello.PL_turn == 1:
-    						self.othello.PL2_pass = 0
-					elif self.othello.PL_turn == 2:
-    						self.othello.PL1_pass = 0
-				self.othello.board = self.othello.kihu[-1][3]	
-		except IndexError:
-			value = None
-
-		if not self.res_win is None:
-			self.res_win.destroy()
-		self.sub_win_Update()
-		self.screen.delete("stone")
-		self.show_othello_board()
-		if self.othello.PL_turn == self.COM:
-			self.othello.com_search(self.othello.PL_turn)
-		self.operate_othello()
-		if self.sub_win.winfo_exists():
-			self.sub_win_Update()
+                try:
+                        if self.listbox.curselection()[0] == 0:
+                                self.othello = rule.Board(self.COM)
+                                print("pass")
+                        elif "pass" !=  self.othello.kihu[self.listbox.curselection()[0]][1]:
+                                for i in range(len(self.othello.kihu) - self.listbox.curselection()[0]):
+                                        self.othello.PL_turn = int(self.othello.kihu.pop()[0])
+                                        if self.othello.PL_turn == 1:
+                                                self.othello.PL2_pass = 0
+                                        elif self.othello.PL_turn == 2:
+                                                self.othello.PL1_pass = 0
+                                self.othello.board = numpy.copy(self.othello.kihu[-1][3])	
+                except IndexError:
+                        value = None
+                
+                self.running = True
+                if not self.res_win is None:
+                        self.res_win.destroy()
+                self.sub_win_Update()
+                self.screen.delete("stone")
+                self.show_othello_board()
+                self.operate_othello()
+                if self.sub_win.winfo_exists():
+                        self.sub_win_Update()
 
 
 	def sub_win_Update(self):
@@ -360,7 +357,7 @@ class Main:
 				path = "./history/"
 				for x in os.listdir(path):
 					if x == name:
-						messagebox.showinfo('保存失敗','同名のファイルまたはディレクトリがが既に存在します')
+						messagebox.showinfo('保存失敗','同名のファイルまたはディレクトリが既に存在します (エラー E001)')
 						self.res_file.delete(0,END)
 						return
 				print(path)

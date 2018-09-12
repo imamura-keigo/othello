@@ -4,7 +4,7 @@ import random
 import csv
 
 class Board:
-    evaluate_Board = numpy.array([40, -20, 0, -1, -1, 0, -12, 40,
+    evaluate_Board = numpy.array([40, -12, 0, -1, -1, 0, -12, 40,
                                 -12, -15, -3, -3, -3, -3, -15, -12,
                                 0, -3, 0, -1, -1, 0, -3, 0,
                                 -1, -3, -1, -1, -1, -1, -3, -1,
