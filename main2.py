@@ -366,8 +366,8 @@ class Main:
 				print(path)
 				with open( path + name, 'w') as file:
                                         record = csv.writer(file, lineterminator='\n')
-                                        hedder = ["ターン数","プレイヤー","手"]
-                                        record.writerow(hedder)
+                                        header = ["ターン数","プレイヤー","手"]
+                                        record.writerow(header)
                                         record.writerows(self.othello.csv_data)
 			self.res_file.delete(0,END)
 			self.res_win.destroy()

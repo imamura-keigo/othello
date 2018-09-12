@@ -333,6 +333,8 @@ class Board:
 
         with open('data.csv', 'w') as file:
             writer = csv.writer(file, lineterminator='\n')
+            header =  ["ターン数","プレイヤー","手"]
+            writer.writerow(header)
             writer.writerows(self.csv_data)
     #-----------------------------------------------------
 
