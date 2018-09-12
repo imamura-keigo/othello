@@ -1,7 +1,7 @@
 import numpy
 import sys
 import random
-
+import csv
 
 class Board:    
     def __init__(self,x):
@@ -52,6 +52,9 @@ class Board:
         """ 
         パスなんだよなぁ...　
         """
+
+        self.show_record()
+
         if self.PL_turn == 1:
             # Main.Pass("先手側",(self.PL1_pass == 1 and self.PL2_pass))
             print("pass_PL1")
@@ -121,7 +124,7 @@ class Board:
             else:
                 self.put_decision(x,y,stone,True)
                 self.kihu.append([stone,x,y,numpy.copy(self.board)])
-        
+                self.show_record()
         #次の手番で打てるか判定
         self.put_checker(self.PL_turn)
         for non_zero in numpy.nonzero(self.can_put): 
@@ -160,7 +163,7 @@ class Board:
         self.put_checker(stone)
         for non_zero in numpy.nonzero(self.can_put):
             if len(non_zero) == 0: #一個も取れない場合
-                self.Pass(stone)
+                self.Pass()
             if len(non_zero) != 0:
                 maxIndex = [i for i, x in enumerate(self.can_put) if x == max(self.can_put)]
                 random_pos = random.choice(maxIndex)
@@ -168,7 +171,7 @@ class Board:
                 y = random_pos//8
                 self.put_decision(x,y,stone,True)
                 self.kihu.append([stone,x,y,numpy.copy(self.board)])
-        
+                self.show_record()
         #次の手番で打てるか判定
         self.put_checker(self.PL_turn) 
         for non_zero in numpy.nonzero(self.can_put): 
@@ -200,6 +203,74 @@ class Board:
                 self.Undo()
             else:
                 self.board = last[3]
+
+
+        #---------今度こそ棋譜表示させたいンゴォｗｗｗｗ------------
+    def show_record(self):
+        global file
+        ishi = str('')
+        x = str('')
+        p = ''
+        
+        k = self.kihu[-1] #棋譜の最新情報(リストの一番後ろ)
+        i = 0
+        self.csv_data = []
+        if len(self.kihu)!=0: 
+            if k[0] == 1:
+                ishi = '●'
+            elif k[0] == 2:
+                ishi = '○'
+            else:
+                print("石がおかしい")
+
+            if k[1] == -1:
+                x = "Pass"
+                print (str(len(self.kihu))+ ishi + " :  "+str(x))
+            else:
+                x = "abcdefgh" [k[1]] + str(k[2]+1)
+                print (str(len(self.kihu)) + ishi + " :  "+str(x))
+            
+        for k in self.kihu:
+            if self.com == 0:
+                if k[0] == 1:
+                    p = "Player1"
+                elif k[0] == 2:
+                    p = "Player2"
+                else:
+                    print("error_show_record")
+                
+            elif self.com == 1:
+                if k[0] == 1:
+                    p = "COM"
+                elif k[0] == 2:
+                    p = "Player1"
+            
+            elif self.com == 2:
+                if k[0] == 1:
+                    p = "Player1"
+                elif k[1] == 2:
+                    p = "COM"
+
+            else:
+                print("error_show_record2")
+            
+            if k[1] == -1:
+                x = "Pass"
+                # print (str(i+1)+ ishi + " :  "+str(x))
+            else:
+                x = "abcdefgh" [k[1]] + str(k[2]+1)
+                # print (str(i+1) + ishi + " :  "+str(x))
+            # 盤面情報もコピー
+            # self.csv_data.append([i+1,p,x,numpy.copy(k[3])])
+
+            self.csv_data.append([i+1,p,x])
+            i = i + 1
+
+
+        with open('data.csv', 'w') as file:
+            writer = csv.writer(file, lineterminator='\n')
+            writer.writerows(self.csv_data)
+    #-----------------------------------------------------
 
     def play_game_CUI(self):
         """ CUI上の入力 """
