@@ -123,12 +123,12 @@ class Main:
 						self.screen.create_rectangle(x1,y1,x2,y2,fill = 'ivory3')
 						if not c == r: 
 							if c == 0:
-								self.screen.create_text(x1+25,y1+25,anchor="c",text=str(r),font=("Consolas", 15),fill="green",tag = "board")
+								self.screen.create_text(x1+25,y1+25,anchor="c",text=str(r),font=("Consolas", 15),fill="black",tag = "board")
 							else:
 								column = "abcdefgh" [int(c)-1]
-								self.screen.create_text(x1+25,y1+25,anchor="c",text=str(column),font=("Consolas", 15),fill="green",tag = "board")
+								self.screen.create_text(x1+25,y1+25,anchor="c",text=str(column),font=("Consolas", 15),fill="black",tag = "board")
 				else:
-						self.screen.create_rectangle(x1,y1,x2,y2,fill = 'green')
+						self.screen.create_rectangle(x1,y1,x2,y2,fill = 'dark green')
 						if self.othello.can_put[(c-1)+(r-1)*8] > 0:
 							self.screen.create_rectangle(x1,y1,x2,y2,fill = 'pale green')
 						if not len(self.othello.kihu) == 0:
@@ -354,11 +354,10 @@ class Main:
 			""" 棋譜の指定ファイルへの保存 """
 			if not self.res_file.get() == "":
 				name = self.res_file.get() + ".csv"
-				exe = os.path.dirname(__file__)
-				dirlist = os.listdir(exe)
+				dirlist = os.listdir('./')
 				if not "history" in dirlist:
 					os.mkdir("history")
-				path = exe + "/history/"
+				path = "./history/"
 				for x in os.listdir(path):
 					if x == name:
 						messagebox.showinfo('保存失敗','同名のファイルまたはディレクトリがが既に存在します')
@@ -366,8 +365,10 @@ class Main:
 						return
 				print(path)
 				with open( path + name, 'w') as file:
-					record = csv.writer(file, lineterminator='\n')
-					record.writerows(self.othello.csv_data)
+                                        record = csv.writer(file, lineterminator='\n')
+                                        hedder = ["ターン数","プレイヤー","手"]
+                                        record.writerow(hedder)
+                                        record.writerows(self.othello.csv_data)
 			self.res_file.delete(0,END)
 			self.res_win.destroy()
 
