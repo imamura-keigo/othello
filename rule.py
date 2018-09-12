@@ -3,7 +3,15 @@ import sys
 import random
 import csv
 
-class Board:    
+class Board:
+    evaluate_Board = numpy.array([40, -20, 0, -1, -1, 0, -12, 40,
+                                -12, -15, -3, -3, -3, -3, -15, -12,
+                                0, -3, 0, -1, -1, 0, -3, 0,
+                                -1, -3, -1, -1, -1, -1, -3, -1,
+                                -1, -3, -1, -1, -1, -1, -3, -1,
+                                0, -3, 0, -1, -1, 0, -3, 0,
+                                -12, -15, -3, -3, -3, -3, -15, -12,
+                                40, -12, 0, -1, -1, 0,-12, 40])
     def __init__(self,x):
         """ 
         盤面初期化
@@ -81,12 +89,15 @@ class Board:
             for dj, fj in zip([-8, 0, 8], [y, 7, 7-y]):
                 if not di == dj == 0:
                     b = self.board[p+di+dj::di+dj][:min(fi, fj)]
+                    copy = numpy.copy(self.board)
                     n = (b==3-stone).cumprod().sum()
                     if b.size <=n or b[n] != stone:
                          n = 0
                     t += n
                     if put:
                         b[:n] = stone
+                    else:
+                        copy[:n] = stone
         if (self.board[p]==0 and t > 0):
             if put:
                 self.PL_turn = 3 - self.PL_turn
@@ -97,6 +108,8 @@ class Board:
                     self.PL2_pass = 0
             else:
                 self.can_put[p] = t
+                copy[p] = stone
+                return copy
         
     def put_checker(self,stone):
         """ 
@@ -156,6 +169,46 @@ class Board:
 #                print(' ',j,end ="")
 #            print()
 
+
+    def evaluate(self,stone,put):
+        """ 現在の盤面を渡された石で評価して最大のインデックスを返す """
+        black = 0
+        white = 0
+        MAX = -500
+        MAX_Index = list(put)
+        
+        for i in put:
+            x = i%8
+            y = i//8
+            next_board = self.put_decision(x,y,stone,False)
+            for j in range(8):
+                for k in range(8):
+                    if next_board[k + j*8] == 1:
+                        black = black + Board.evaluate_Board[k + j*8]
+                    elif next_board[k + j*8] == 2:
+                        white = white + Board.evaluate_Board[k + j*8]
+
+            if stone == 1: #COM先手
+                if MAX < (black - white):
+                    MAX = black - white
+                    MAX_Index = list([])
+                    MAX_Index.append(i)
+                elif (MAX == (black - white)):
+                    MAX_Index.append(i)
+
+            elif stone == 2: #COM後手 
+                if MAX < (white - black):
+                    MAX = white - black
+                    MAX_Index = list([])
+                    MAX_Index.append(i)
+                elif(MAX == (white - black)):
+                    MAX_Index.append(i)
+            black = 0
+            white = 0
+        return MAX_Index
+
+
+
     def com_search(self,stone): #AI様やぞ
         """ 
         AI様。一番多くとれる場所にランダムに置くだけ。うんち
@@ -165,10 +218,21 @@ class Board:
             if len(non_zero) == 0: #一個も取れない場合
                 self.Pass()
             if len(non_zero) != 0:
-                maxIndex = [i for i, x in enumerate(self.can_put) if x == max(self.can_put)]
-                random_pos = random.choice(maxIndex)
+#                maxIndex = [i for i, x in enumerate(self.can_put) if x == max(self.can_put)]
+#                random_pos = random.choice(maxIndex)
+#                x = random_pos%8
+#                y = random_pos//8
+                for non_zero_b in numpy.nonzero(self.board):
+                    if len(non_zero_b) >= 54:
+                        print("AI_rand")
+                        maxIndex = [i for i, x in enumerate(self.can_put) if x == max(self.can_put)]
+                        random_pos = random.choice(maxIndex)
+                    else:
+                        print("AI_board")
+                        random_pos = random.choice(self.evaluate(stone,non_zero))
                 x = random_pos%8
                 y = random_pos//8
+
                 self.put_decision(x,y,stone,True)
                 self.kihu.append([stone,x,y,numpy.copy(self.board)])
                 self.show_record()
