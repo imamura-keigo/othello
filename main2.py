@@ -21,10 +21,10 @@ class Main:
 		self.bottom = Frame(self.root)
         
 		self.kihu_bot = Button(self.bottom,text ="棋譜(w)",command = self.create_new_screen)
-		self.restart_bot = Button(self.bottom,text ="Restart(r)",command = self.runGame)
+		self.restart_bot = Button(self.bottom,text ="Restart(r)",command = self.restart)
 		self.quit_bot = Button(self.bottom,text ="Quit(q)",command = self.root.destroy)
 		self.screen = Canvas(self.root, width=500, height=500, background="#222",highlightthickness=0)
-		self.score = Canvas(self.root, width=200, height=500, background="ivory3",highlightthickness=0)
+		self.score = Canvas(self.root, width=135, height=500, background="ivory3",highlightthickness=0)
 
 		self.root.wm_title("Othello")
 		self.screen.grid(column=0,row=0)
@@ -152,7 +152,9 @@ class Main:
 		self.screen.grid(column=0,row=0)
 		self.screen.update()
 		self.score_show()
-	
+	def restart(self):
+                self.sub_win.destroy()
+                self.runGame()
 	def score_show(self):
 		''' 
 		現在の得点計算,score表示
@@ -212,7 +214,7 @@ class Main:
                 try:
                         if self.listbox.curselection()[0] == 0:
                                 self.othello = rule.Board(self.COM)
-                                print("pass")
+                                #print("pass")
                         elif "pass" !=  self.othello.kihu[self.listbox.curselection()[0]][1]:
                                 for i in range(len(self.othello.kihu) - self.listbox.curselection()[0]):
                                         self.othello.PL_turn = int(self.othello.kihu.pop()[0])
@@ -360,7 +362,7 @@ class Main:
 						messagebox.showinfo('保存失敗','同名のファイルまたはディレクトリが既に存在します (エラー E001)')
 						self.res_file.delete(0,END)
 						return
-				print(path)
+				#print(path)
 				with open( path + name, 'w') as file:
                                         record = csv.writer(file, lineterminator='\n')
                                         header = ["ターン数","プレイヤー","手"]
@@ -368,6 +370,7 @@ class Main:
                                         record.writerows(self.othello.csv_data)
 			self.res_file.delete(0,END)
 			self.res_win.destroy()
+                        
 
 	def show_result(self):
 		''' 
@@ -379,7 +382,7 @@ class Main:
 			elif (self.othello.white_sum > self.othello.black_sum):
 				show_win = self.othello.gote[self.COM] + " Win "
 			else:
-				self.show_win = "draw"
+				show_win = "draw"
 			
 			self.res_win = Toplevel()
 			self.res_win.title("対戦結果")
@@ -415,10 +418,12 @@ class Main:
 		#self.name_P2.destroy()
 		#----------------------------------------------------
 		
-		if not self.sub_win is None:
-			self.sub_win.destroy()
+		if not self.sub_win is None: 
+                        if self.sub_win.winfo_exists():
+                                self.sub_win.destroy()
 		if not self.res_win is None:
-			self.res_win.destroy()
+                        if self.res_win.winfo_exists():
+                                self.res_win.destroy()
     			
 		self.create_new_screen() #棋譜用サブ画面表示 
 

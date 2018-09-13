@@ -65,7 +65,7 @@ class Board:
 
         if self.PL_turn == 1:
             # Main.Pass("先手側",(self.PL1_pass == 1 and self.PL2_pass))
-            print("pass_PL1")
+            #print("pass_PL1")
             self.PL1_pass = 1
         elif self.PL_turn == 2:
             # print("pass_PL2")
@@ -73,7 +73,7 @@ class Board:
             self.PL2_pass = 1
 
         if self.PL1_pass == 1 and self.PL2_pass == 1:
-            print("game_end")
+            #print("game_end")
             self.game_end()
 
         self.PL_turn = 3 - self.PL_turn
@@ -130,7 +130,7 @@ class Board:
 #            elif numpy.argmin(self.board) != 0: #盤面埋まり申した
 #                self.game_end()
             if len(numpy.where(non_zero == (x + y*8))[0]) == 0: #置けやん場所指定したやつ 入力しなおさねば
-                print("そこ置けやん")
+                #print("そこ置けやん")
                 return False
             elif len(non_zero) == 0: #一個も取れない場合
                 self.Pass()
@@ -224,11 +224,11 @@ class Board:
 #                y = random_pos//8
                 for non_zero_b in numpy.nonzero(self.board):
                     if len(non_zero_b) >= 54:
-                        print("AI_rand")
+                        #print("AI_rand")
                         maxIndex = [i for i, x in enumerate(self.can_put) if x == max(self.can_put)]
                         random_pos = random.choice(maxIndex)
                     else:
-                        print("AI_board")
+                        #print("AI_board")
                         random_pos = random.choice(self.evaluate(stone,non_zero))
                 x = random_pos%8
                 y = random_pos//8
@@ -289,10 +289,10 @@ class Board:
 
             if k[1] == -1:
                 x = "Pass"
-                print (str(len(self.kihu))+ ishi + " :  "+str(x))
+                #print (str(len(self.kihu))+ ishi + " :  "+str(x))
             else:
                 x = "abcdefgh" [k[1]] + str(k[2]+1)
-                print (str(len(self.kihu)) + ishi + " :  "+str(x))
+                #print (str(len(self.kihu)) + ishi + " :  "+str(x))
             
         for k in self.kihu:
             if self.com == 0:
