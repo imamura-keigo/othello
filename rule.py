@@ -4,6 +4,9 @@ import random
 import csv
 
 class Board:
+    """
+    オセロゲームのルールを記述するクラス
+    """
     evaluate_Board = numpy.array([40, -12, 0, -1, -1, 0, -12, 40,
                                 -12, -15, -3, -3, -3, -3, -15, -12,
                                 0, -3, 0, -1, -1, 0, -3, 0,
@@ -12,10 +15,11 @@ class Board:
                                 0, -3, 0, -1, -1, 0, -3, 0,
                                 -12, -15, -3, -3, -3, -3, -15, -12,
                                 40, -12, 0, -1, -1, 0,-12, 40])
+    ''' 評価ボード '''
     def __init__(self,x):
         """ 
         盤面初期化
-         """
+        """
         self.board = numpy.zeros(64,dtype=int) #0:空白
         self.cp_board = numpy.zeros(64,dtype=int)
         self.can_put = numpy.zeros(64,dtype=int) #0:置けない 1:置ける
@@ -36,7 +40,13 @@ class Board:
         self.res_score = ""
 
     def game_end(self):
-        """ ゲーム終了なんよなぁ """ #片方が盤面に打てなくなると終了してしまうので何とかしようね
+        """
+        ゲーム終了時の処理
+        終了フラグを立てる
+        スコアの計算
+        結果のCUI上への表示
+        """
+        #片方が盤面に打てなくなると終了してしまうので何とかしようね
         # self.running = False
         # print(self.board.argmin())
         # print(self.board)
@@ -58,9 +68,8 @@ class Board:
          
     def Pass(self):
         """ 
-        パスなんだよなぁ...　
+        パス判定時のターン遷移及び連続パスの終了判定　
         """
-
         self.show_record()
 
         if self.PL_turn == 1:
@@ -122,8 +131,11 @@ class Board:
             
 
     def put_stone(self,x,y,stone): #石を置く
-        """ 
-        石を置くついでにパスの判定
+        """
+        プレイヤー動作
+        石を置く
+        パスの判定
+        盤面埋まりによる終了の判定
          """
         self.put_checker(stone)
         for non_zero in numpy.nonzero(self.can_put): 
@@ -211,7 +223,11 @@ class Board:
 
     def com_search(self,stone): #AI様やぞ
         """ 
-        AI様。一番多くとれる場所にランダムに置くだけ。うんち
+        コンピュータ動作
+        静的評価値を持つ各マスから各石の評価値を出し、差が一番大きくなる手を選択
+        残り10手は一番多く取れるものから選択
+        パスの判定
+        盤面埋まりによる終了の判定
         """
         self.put_checker(stone)
         for non_zero in numpy.nonzero(self.can_put):
@@ -248,29 +264,12 @@ class Board:
             self.game_end()
 
 
-
-
-    def Undo(self):
-        if len(self.kihu) == 1 or len(self.kihu) == 0:
-            self.board = numpy.zeros(64,dtype=int) #0:空白
-            self.cp_board = numpy.zeros(64,dtype=int)
-            self.board[27] = self.board[36] = 1 #1:黒
-            self.board[28] = self.board[35] = 2 #2:白
-            self.PL_turn = 1
-        elif len(self.kihu) != 0:
-            pop = self.kihu.pop()
-            last = self.kihu[-2]
-            PL_turn = last[0]
-            #print("pop  ", pop)
-            #print("pop  ", pop[0])
-            if self.com == pop[0]:
-                self.Undo()
-            else:
-                self.board = last[3]
-
-
         #---------今度こそ棋譜表示させたいンゴォｗｗｗｗ------------
     def show_record(self):
+        ''' 
+        CUI上での棋譜表示の操作
+        CSVへの棋譜の出力
+        '''
         global file
         ishi = str('')
         x = str('')
@@ -351,8 +350,6 @@ class Board:
 
             print("x >> ", end ="")
             x = int(input())
-            if x == 10:
-                self.Undo()
             print("y >> ", end ="")
             y = int(input())
             self.put_stone(x,y,self.PL_turn) 

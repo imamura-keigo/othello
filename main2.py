@@ -9,9 +9,25 @@ import os
 import csv
 
 class Main: 
-    #running = False
-
+	""" Mainクラス """
 	def __init__(self):
+		"""
+		初期化メソッド
+		ウィンドウ表示系 _win
+		ボタン系 _bot
+		ハンドラ処理用 mainloop
+		tkinter Frame階層
+		root ---*---------------*--- screen
+        |				|
+		|               *--- bottom
+        |               |
+        |               *---score
+        |
+		*--- sub_win
+		|
+		|
+		*---res_win
+		"""
 		self.sub_win = None
 		self.res_win = None
 		self.pass_win = None
@@ -20,9 +36,9 @@ class Main:
 		self.root.resizable(0,0)
 		self.bottom = Frame(self.root)
         
-		self.kihu_bot = Button(self.bottom,text ="棋譜(w)",command = self.create_new_screen)
-		self.restart_bot = Button(self.bottom,text ="Restart(r)",command = self.restart)
-		self.quit_bot = Button(self.bottom,text ="Quit(q)",command = self.root.destroy)
+		self.kihu_bot = Button(self.bottom,text ="棋譜",command = self.create_new_screen)
+		self.restart_bot = Button(self.bottom,text ="Restart",command = self.restart)
+		self.quit_bot = Button(self.bottom,text ="Quit",command = self.root.destroy)
 		self.screen = Canvas(self.root, width=500, height=500, background="#222",highlightthickness=0)
 		self.score = Canvas(self.root, width=135, height=500, background="ivory3",highlightthickness=0)
 
@@ -32,11 +48,15 @@ class Main:
 		self.runGame()
     #ボタン系の処理、ハンドラ処理
 		self.screen.bind("<Button-1>", self.clickHandle)
-		self.screen.bind("<Key>",self.keyHandle)
     #ループ    
 		self.root.mainloop()
 
 	def clickHandle(self,event):
+		""" 
+		クリックハンドラ
+		screenFrame上の画面サイズをもとにクリックした座標を割り出し、
+		タイトル、オセロゲーム中の処理を記述
+		"""
 		xMouse = event.x
 		yMouse = event.y
 		x = -1
@@ -65,6 +85,7 @@ class Main:
 								
 								while self.COM == self.othello.PL_turn:
 									self.othello.com_search(self.othello.PL_turn)
+									time.sleep(1)
 									self.operate_othello()
 									if self.sub_win.winfo_exists():
 										self.sub_win_Update()
@@ -97,6 +118,11 @@ class Main:
 
 
 	def operate_othello(self):
+		""" 
+		オセロの駒を表示
+		ボード情報をもとにGUI上の座標を割り出し、オセロの駒を表示
+		パスが発生していた場合パスウィンドウを表示
+		"""
 		BOARD_SIZE = 8 + 1
 		column_width = self.screen.winfo_width() / BOARD_SIZE
 		row_height = self.screen.winfo_height() / BOARD_SIZE
@@ -153,8 +179,11 @@ class Main:
 		self.screen.update()
 		self.score_show()
 	def restart(self):
-                self.sub_win.destroy()
-                self.runGame()
+		'''
+		リスタート時のサブウィンドウ削除
+		'''
+		self.sub_win.destroy()
+		self.runGame()
 	def score_show(self):
 		''' 
 		現在の得点計算,score表示
@@ -178,6 +207,11 @@ class Main:
 		
 
 	def show_othello_board(self):
+		""" 
+		オセロの駒を表示
+		ボード情報をもとにGUI上の座標を割り出し、オセロの駒を表示
+		パスが発生していた場合パスウィンドウを表示
+		"""	
 		BOARD_SIZE = 8 + 1
 		column_width = self.screen.winfo_width() / BOARD_SIZE
 		row_height = self.screen.winfo_height() / BOARD_SIZE
@@ -211,33 +245,40 @@ class Main:
 		self.score.update()
 
 	def choose(self):
-                try:
-                        if self.listbox.curselection()[0] == 0:
-                                self.othello = rule.Board(self.COM)
-                                #print("pass")
-                        elif "pass" !=  self.othello.kihu[self.listbox.curselection()[0]][1]:
-                                for i in range(len(self.othello.kihu) - self.listbox.curselection()[0]):
-                                        self.othello.PL_turn = int(self.othello.kihu.pop()[0])
-                                        if self.othello.PL_turn == 1:
-                                                self.othello.PL2_pass = 0
-                                        elif self.othello.PL_turn == 2:
-                                                self.othello.PL1_pass = 0
-                                self.othello.board = numpy.copy(self.othello.kihu[-1][3])	
-                except IndexError:
-                        value = None
+		""" 
+		表示された棋譜画面から手を選択し、Undoを実行
+		Boardクラス内の変数である棋譜リストを更新
+		"""
+		try:
+			if self.listbox.curselection()[0] == 0:
+				self.othello = rule.Board(self.COM)
+				print("pass")
+			elif "pass" !=  self.othello.kihu[self.listbox.curselection()[0]][1]:
+				for i in range(len(self.othello.kihu) - self.listbox.curselection()[0]):
+					self.othello.PL_turn = int(self.othello.kihu.pop()[0])
+					if self.othello.PL_turn == 1:
+						self.othello.PL2_pass = 0
+					elif self.othello.PL_turn == 2:
+						self.othello.PL1_pass = 0
+				self.othello.board = numpy.copy(self.othello.kihu[-1][3])	
+		except IndexError:
+			value = None
                 
-                self.running = True
-                if not self.res_win is None:
-                        self.res_win.destroy()
-                self.sub_win_Update()
-                self.screen.delete("stone")
-                self.show_othello_board()
-                self.operate_othello()
-                if self.sub_win.winfo_exists():
-                        self.sub_win_Update()
+		self.running = True
+		if not self.res_win is None:
+			self.res_win.destroy()
+		self.sub_win_Update()
+		self.screen.delete("stone")
+		self.show_othello_board()
+		self.operate_othello()
+		if self.sub_win.winfo_exists():
+			self.sub_win_Update()
 
 
 	def sub_win_Update(self):
+		""" 
+		サブウィンドウで表示されるテキスト部(棋譜)を更新して表示する
+		"""
 		ishi = str("")
 		self.listbox.delete (first = 0, last=self.listbox.size())
 
@@ -277,6 +318,9 @@ class Main:
 		self.score.update()
 
 	def create_new_screen(self):
+		""" 
+		棋譜用のサブウィンドウを表示
+		"""
 		if self.sub_win is None or not self.sub_win.winfo_exists():
 			self.sub_win=Toplevel()
 			self.sub_win.title("棋譜")
@@ -305,18 +349,12 @@ class Main:
 			self.listbox = Listbox(self.sub_win, yscrollcommand=self.scrollbar.set, selectmode  = SINGLE)
 
 			self.sub_win_Update()
-            
-	def keyHandle(self,event):
-		symbol = event.keysym
-		if symbol.lower()=="r"  and self.running: #rでリスタート
-			self.runGame()
-		elif symbol.lower()=="q": #qでおわおわり
-			self.root.destroy()
-		elif symbol.lower()=="w" and self.running:
-			self.create_new_screen()
-		
-        
+            		
+
 	def runGame(self):
+		""" 
+		タイトル画面の表示
+		"""	
 		self.running = False
 		self.sub_win = None
 		self.screen.create_text(250,203,anchor="c",text="オセロにしたい\nしたくない？",font=("Consolas", 50),fill="#fff")
@@ -403,7 +441,9 @@ class Main:
 
 
 	def playGame(self):
-        
+		""" 
+		タイトルからオセロ画面への画面遷移時の各メソッド呼び出し
+		"""
 		self.running = True
 		self.screen.delete(ALL)
 
@@ -440,15 +480,4 @@ class Main:
 
 if __name__ == '__main__':
     main = Main()
-""" 
-root ---*---------------*--- screen
-        |				|
-		|               *--- bottom
-        |               |
-        |               *---score
-        |
-		*--- sub_win
-		|
-		|
-		*---res_win
-"""
+
